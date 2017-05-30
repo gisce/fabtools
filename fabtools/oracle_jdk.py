@@ -83,6 +83,72 @@ def install_from_oracle_site(version=DEFAULT_VERSION):
     _create_profile_d_file(prefix)
 
 
+def install_from_resources(version=DEFAULT_VERSION):
+    """
+    Download tarball from Oracle site and install JDK.
+
+    ::
+
+        import fabtools
+
+        # Install Oracle JDK
+        fabtools.oracle_jdk.install_from_oracle_site()
+
+    """
+    from fabric.api import put
+    from os.path import join, isfile
+    from sys import stderr
+
+    prefix = '/opt'
+    resources = 'resources'
+
+    release, build = version.split('-')
+    major, update = release.split('u')
+    if len(update) == 1:
+        update = '0' + update
+
+    arch = _required_jdk_arch()
+
+    self_extracting_archive = (major == '6')
+
+    extension = 'bin' if self_extracting_archive else 'tar.gz'
+    filename = 'jdk-%(release)s-linux-%(arch)s.%(extension)s' % locals()
+    download_path = posixpath.join('/tmp', filename)
+    res_path = join(resources, filename)
+    if not isfile(res_path):
+        stderr('<{}>: Not Found!, add it to the resources folder and try again')
+        exit(255)
+    put(local_path="resources/{}".format(filename), remote_path=download_path)
+
+    # Prepare install dir
+    install_dir = 'jdk1.%(major)s.0_%(update)s' % locals()
+    with cd(prefix):
+        if is_dir(install_dir):
+            run_as_root('rm -rf %s' % quote(install_dir))
+
+    # Extract
+    if self_extracting_archive:
+        run('chmod u+x %s' % quote(download_path))
+        with cd('/tmp'):
+            run_as_root('rm -rf %s' % quote(install_dir))
+            run_as_root('./%s' % filename)
+            run_as_root('mv %s %s' % (quote(install_dir), quote(prefix)))
+    else:
+        with cd(prefix):
+            run_as_root('tar xzvf %s' % quote(download_path))
+
+    # Set up link
+    link_path = posixpath.join(prefix, 'jdk')
+    if is_link(link_path):
+        run_as_root('rm -f %s' % quote(link_path))
+    run_as_root('ln -s %s %s' % (quote(install_dir), quote(link_path)))
+
+    # Remove archive
+    run('rm -f %s' % quote(download_path))
+
+    _create_profile_d_file(prefix)
+
+
 def _download(url, download_path):
     from fabtools.require.curl import command as require_curl_command
     require_curl_command()
