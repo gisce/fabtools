@@ -18,6 +18,7 @@ from fabric.api import run, cd, settings, hide
 from fabtools.files import is_dir, is_link
 from fabtools.system import get_arch
 from fabtools.utils import run_as_root
+from os.path import isfile
 
 
 DEFAULT_VERSION = '7u25-b15'
@@ -116,7 +117,10 @@ def install_from_resources(version=DEFAULT_VERSION):
     download_path = posixpath.join('/tmp', filename)
     res_path = join(resources, filename)
     if not isfile(res_path):
-        stderr('<{}>: Not Found!, add it to the resources folder and try again')
+        stderr(
+            '<{}>: Not Found!, add it to the resources folder'
+            ' and try again'.format(filename)
+        )
         exit(255)
     put(local_path="resources/{}".format(filename), remote_path=download_path)
 
