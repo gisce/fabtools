@@ -218,6 +218,7 @@ def instance(name, version=VERSION, bind='127.0.0.1', port=6379, **kwargs):
         process_name,
         user='redis',
         directory='/var/run',
+        stdout_logfile="/var/log/redis/redis-redis.log",
         command="%(redis_server)s %(config_filename)s" % locals(),
     )
 
