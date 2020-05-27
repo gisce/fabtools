@@ -64,7 +64,7 @@ def locales(names):
     Raises UnsupportedLocales if some of the required locales
     are not supported.
     """
-
+    from fabtools.system import distrib_release
     family = distrib_family()
     if family == 'debian':
         command = 'dpkg-reconfigure --frontend=noninteractive locales'
