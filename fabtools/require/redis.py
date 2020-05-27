@@ -74,6 +74,8 @@ def installed_from_source(version=VERSION):
                 run('make')
 
                 for filename in BINARIES:
+                    if filename == 'redis-check-dump' and version >= '5.0.5':
+                        filename = 'redis-check-rdb'
                     run_as_root('cp -pf src/%(filename)s %(dest_dir)s/' % locals())
                     run_as_root('chown redis: %(dest_dir)s/%(filename)s' % locals())
 
