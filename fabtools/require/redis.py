@@ -221,6 +221,8 @@ def instance(name, version=VERSION, bind='127.0.0.1', port=6379, **kwargs):
         user='redis',
         directory='/var/run',
         stdout_logfile="/var/log/redis/redis-redis.log",
+        stdout_logfile_maxbytes="750MB",
+        stdout_logfile_backups = "10",
         command="%(redis_server)s %(config_filename)s" % locals(),
         priority='0',
     )
