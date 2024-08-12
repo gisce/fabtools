@@ -39,6 +39,8 @@ jobs:
 
     - name: Install package
       run: |
+        pip install pytest
+        pip install mock
         pip install -e .
 
     - name: Run test
